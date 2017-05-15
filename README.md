@@ -1,1 +1,0 @@
-# TurboChargeManagedBlockerCapeTownJavaCommunity2017
