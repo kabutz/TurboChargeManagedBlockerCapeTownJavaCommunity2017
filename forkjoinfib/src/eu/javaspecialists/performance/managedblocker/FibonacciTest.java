@@ -6,9 +6,9 @@ import java.util.concurrent.*;
 
 import static org.junit.Assert.*;
 
-// TODO: Would you like to subscribe to my free advanced Java newsletter?
-// TODO: Or are you subscribed already and would like to say "hi"?
-// TODO: Do both here: tinyurl.com/devoxxuk17
+// TODO: Sign up to Heinz's "Java Specialists' Newsletter":
+// TODO: tinyurl.com/ctjc2017
+// TODO: (Already signed up?  Say "hi" on same link)
 public class FibonacciTest {
     @Test
     public void testSimpleValues() {
