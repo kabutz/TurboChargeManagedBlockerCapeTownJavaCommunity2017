@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 // demo3: test100_000_000() time = 14743
 // demo4: test100_000_000() time = 10141
 // demo5: test100_000_000() time = 6756
-
+// demo6: test100_000_000() time = 6646
 
 // TODO: Sign up to Heinz's "Java Specialists' Newsletter":
 // TODO: tinyurl.com/ctjc2017
@@ -44,7 +44,7 @@ public class Fibonacci {
             long time = n > 10_000 ? System.currentTimeMillis() : 0;
             try {
                 if (n % 2 == 1) {
-                    result =  f0.multiply(f0).add(f1.multiply(f1));
+                    result = f0.multiply(f0).add(f1.multiply(f1));
                 } else {
                     result = f0.shiftLeft(1).add(f1).multiply(f1);
                 }
@@ -60,15 +60,37 @@ public class Fibonacci {
             }
         } else if (result == RESERVED) {
             try {
-                synchronized (RESERVED) {
-                    while((result = cache.get(n)) == RESERVED) {
-                        RESERVED.wait();
-                    }
-                }
+                ReservedFibonacciBlocker blocker = new ReservedFibonacciBlocker(n, cache);
+                ForkJoinPool.managedBlock(blocker);
+                result = blocker.result;
             } catch (InterruptedException e) {
                 throw new CancellationException("interrupted");
             }
         }
         return result;
+    }
+
+    private class ReservedFibonacciBlocker implements ForkJoinPool.ManagedBlocker {
+        private final int n;
+        private final Map<Integer, BigInteger> cache;
+        private BigInteger result;
+
+        public ReservedFibonacciBlocker(int n, Map<Integer, BigInteger> cache) {
+            this.n = n;
+            this.cache = cache;
+        }
+
+        public boolean isReleasable() {
+            return (result = cache.get(n)) != RESERVED;
+        }
+
+        public boolean block() throws InterruptedException {
+            synchronized (RESERVED) {
+                while (!isReleasable()) {
+                    RESERVED.wait();
+                }
+            }
+            return true;
+        }
     }
 }
